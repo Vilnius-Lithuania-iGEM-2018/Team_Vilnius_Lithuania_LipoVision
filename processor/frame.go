@@ -35,7 +35,7 @@ const (
 )
 
 // NewFrameProcessor Creates a frame processor with given settings
-func NewFrameProcessor() *FrameProcessor {
+func NewFrameProcessor(template image.Image) *FrameProcessor {
 	log.WithFields(log.Fields{
 		"processor": "Frame",
 	}).Info("Created")
@@ -56,10 +56,11 @@ func NewFrameProcessor() *FrameProcessor {
 			filter.CreateCvtColorFilter(gocv.ColorBGRToGray),
 			filter.CreateThesholdFilter(125, 255, gocv.ThresholdBinaryInv),
 		},
-		template:    templateFetch(),
-		region:      image.Rectangle{},
-		subtractor:  gocv.NewBackgroundSubtractorKNN(),
-		dangerCount: 0,
+		template:     templateSetup(template),
+		region:       image.Rectangle{},
+		subtractor:   gocv.NewBackgroundSubtractorKNN(),
+		dangerCount:  0,
+		autonomicRun: 0,
 	}
 }
 
@@ -92,9 +93,11 @@ type FrameProcessor struct {
 	dangerCount int32
 }
 
-func templateFetch() (filteredTemplate gocv.Mat) {
-	// 50x50 matching intersection template
-	var template = gocv.IMRead("template-intersection.png", gocv.IMWritePngStrategyFiltered)
+func templateSetup(templateImage image.Image) (filteredTemplate gocv.Mat) {
+	template, err := gocv.ImageToMatRGB(templateImage)
+	if err != nil {
+		panic(err)
+	}
 	gocv.CvtColor(template, &template, gocv.ColorBGRToGray)
 	gocv.AdaptiveThreshold(template, &template, 255, gocv.AdaptiveThresholdMean, gocv.ThresholdBinaryInv, 31, 2)
 	gocv.Erode(template, &template, gocv.GetStructuringElement(0, image.Pt(3, 3)))
@@ -171,7 +174,7 @@ func (fp *FrameProcessor) Launch(frames <-chan device.Frame, streamHandlers map[
 				furthestLineX := findBiggestXOfWhitePixel(&cropped)
 
 				newCount := countMisbehaviorPixels(croppedSubtracted, furthestLineX)
-				if newCount > 500 {
+				if newCount < 500 {
 					fp.dangerCount = fp.dangerCount + countMisbehaviorPixels(croppedSubtracted, furthestLineX)
 				}
 				log.Info("Danger count: ", fp.dangerCount)
@@ -183,7 +186,11 @@ func (fp *FrameProcessor) Launch(frames <-chan device.Frame, streamHandlers map[
 			invokeIfPresent(streamHandlers, StreamThresholded, &frame)
 			invokeIfPresent(streamHandlers, StreamOriginal, &original)
 			invokeIfPresent(streamHandlers, StreamRegion, &cropped)
-			fp.dangerCount = fp.dangerCount - 20
+			if fp.dangerCount > 100 {
+				fp.dangerCount = fp.dangerCount - 50
+			} else {
+				fp.dangerCount = 0
+			}
 			fp.previousFame = &frame
 		}
 		fp.subtractor.Close()

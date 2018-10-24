@@ -1,8 +1,14 @@
+//go:generate go-bindata template-intersection.png
 package main
 
 import (
+	"bytes"
 	"context"
+	"flag"
 	"image"
+	"image/png"
+	"os"
+	"runtime/pprof"
 	"time"
 
 	"github.com/Vilnius-Lithuania-iGEM-2018/lipovision/device"
@@ -13,6 +19,8 @@ import (
 	"github.com/gotk3/gotk3/gtk"
 	log "github.com/sirupsen/logrus"
 )
+
+var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 
 var (
 	mainCtx         context.Context
@@ -26,6 +34,16 @@ var (
 	illuminationValue float64
 	exposureValue     float64
 )
+
+func getTemplateImage() image.Image {
+	imgBytes := MustAsset("template-intersection.png")
+	img, imgErr := png.Decode(bytes.NewBuffer(imgBytes))
+	if imgErr != nil {
+		panic(imgErr)
+	}
+
+	return img
+}
 
 func chooseFileCreateDevice(win *gtk.Window) device.Device {
 	chooser, err := gtk.FileChooserDialogNewWith1Button(
@@ -49,6 +67,16 @@ func chooseFileCreateDevice(win *gtk.Window) device.Device {
 }
 
 func main() {
+	flag.Parse()
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+	}
+
 	mainCtx, mainCancel = context.WithCancel(context.Background())
 	defer mainCancel()
 
@@ -100,7 +128,7 @@ func registerEventHandling(content *gui.MainControl, win *gtk.Window) {
 			activeProcessor.Set(processor.SettingRegionIsSet, int32(0))
 		}
 	})
-	content.StreamControl.LockButton.Connect("toggled", func(btn *gtk.CheckButton) {
+	content.StreamControl.AutoButton.Connect("toggled", func(btn *gtk.CheckButton) {
 		if btn.GetActive() {
 			activeProcessor.Set(processor.SettingAutonomicRun, int32(1))
 		} else {
@@ -155,13 +183,14 @@ func registerDeviceChange(content *gui.MainControl, win *gtk.Window) {
 		}
 
 		stream := activeDevice.Stream(mainCtx)
-		activeProcessor = processor.NewFrameProcessor()
+		activeProcessor = processor.NewFrameProcessor(getTemplateImage())
 		activeProcessor.Launch(stream, frameHandlers)
 
 		go func() {
 			log.Info("Health monitor started")
 		CheckHealth:
 			for {
+				time.Sleep(1 * time.Second)
 				select {
 				case <-mainCtx.Done():
 					break CheckHealth
@@ -169,9 +198,8 @@ func registerDeviceChange(content *gui.MainControl, win *gtk.Window) {
 				}
 
 				if activeProcessor.Get(processor.SettingAutonomicRun) != 0 {
-					time.Sleep(5 * time.Second)
 					score := activeProcessor.Get(processor.SettingDangerScore)
-					if score > 300 {
+					if score > 30 {
 						pump2 := content.Pump.Pump(1).GetValue()
 						pump3 := content.Pump.Pump(2).GetValue()
 
