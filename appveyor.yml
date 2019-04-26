@@ -10,7 +10,7 @@ platform:
 environment:
   GOPATH: c:\gopath
   GOROOT: c:\go
-  GOVERSION: 1.10.3
+  GOVERSION: 1.12.4
   TEST_EXTERNAL: 1
   PKG_CONFIG_PATH: C:\msys64\mingw64\lib\pkgconfig
   CGO_LDFLAGS_ALLOW: -Wl,-luuid
