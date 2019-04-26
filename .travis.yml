@@ -20,30 +20,7 @@ env:
   global:
     - PACKAGE_VERSION=$TRAVIS_TAG # Special builds will have a tag
     - OPENCV_VERSION=3.4.2
-
-addons:
-  apt:
-    packages:
-    - libgmp-dev
-    - build-essential
-    - cmake
-    - git
-    - gtk2.0
-    - gtk+3.0
-    - libgtk2.0-dev
-    - libgtk-3-dev
-    - pkg-config
-    - libavcodec-dev
-    - libavformat-dev
-    - libswscale-dev
-    - libtbb2
-    - libtbb-dev
-    - libjpeg-dev
-    - libpng-dev
-    - libtiff-dev
-    - libjasper-dev
-    - libdc1394-22-dev
-    - python-setuptools
+    
 install:
   - bash .travis/before_install.sh
   - go get -u github.com/golang/dep/cmd/dep
