@@ -5,7 +5,7 @@ ASSETS=assets
 OPENCV_BUILD=${1:-"/usr/local/opt/opencv/lib"}
 OPENCV_POSTFIX=${2:-".3.4.2.dylib"}
 
-BUNDLE_FOLDER=LipoVision.app
+BUNDLE_FOLDER=Lipovision.app
 BIN_FOLDER=$BUNDLE_FOLDER/Contents/MacOS
 RES_FOLDER=$BUNDLE_FOLDER/Contents/Resources
 
@@ -21,7 +21,7 @@ bash .travis/iconset_make.sh $ASSETS
 cp $ASSETS/lipovision.icns $RES_FOLDER
 
 pushd cmd/lipovision
-go build -ldflags '-s -w' -o ../../$BIN_FOLDER/LipoVision -tags gtk_3_10
+go build -ldflags '-s -w' -o ../../$BIN_FOLDER/lipovision -tags gtk_3_10
 popd
 
 cp template-intersection.png $BIN_FOLDER/
@@ -33,7 +33,7 @@ dylibs=($BIN_FOLDER/libopencv_*)
 for lib in "${dylibs[@]}"
 do
     install_name_tool -change $OPENCV_BUILD/$(basename $lib) \
-    @executable_path/$(basename $lib) $BIN_FOLDER/LipoVision
+    @executable_path/$(basename $lib) $BIN_FOLDER/lipovision
 done
 
-mv LipoVision.app/ build/LipoVision.app/
+mv $BUNDLE_FOLDER/ build/$BUNDLE_FOLDER/

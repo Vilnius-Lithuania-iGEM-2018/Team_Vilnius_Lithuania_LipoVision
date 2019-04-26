@@ -4,8 +4,8 @@ import (
 	"github.com/gotk3/gotk3/gtk"
 )
 
-// NewMainControl makes the widget
-func NewMainControl() (*MainControl, error) {
+// NewMainWindow creates the main Window
+func NewMainWindow() (*MainControl, error) {
 	box, boxErr := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 5)
 	if boxErr != nil {
 		return nil, boxErr

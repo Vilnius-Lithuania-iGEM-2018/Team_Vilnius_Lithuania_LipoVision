@@ -21,6 +21,7 @@ type Pump struct {
 func (Pump) Invoke(invoke device.ClientInvocation, data float64) error {
 	log.WithFields(log.Fields{
 		"device": "video",
+		"score":  data,
 	}).Info("Invoke on pump called")
 	return nil
 }

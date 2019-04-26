@@ -27,6 +27,26 @@ var (
 	exposureValue     float64
 )
 
+func videoFileChooser(win *gtk.Window) string {
+	chooser, err := gtk.FileChooserDialogNewWith1Button(
+		"Select video file", win, gtk.FILE_CHOOSER_ACTION_OPEN,
+		"Open", gtk.RESPONSE_ACCEPT)
+	if err != nil {
+		log.Fatal("File chooser failed: ", err)
+	}
+	defer chooser.Destroy()
+
+	filter, _ := gtk.FileFilterNew()
+	filter.AddPattern("*.mp4")
+	filter.SetName(".mp4")
+	chooser.AddFilter(filter)
+
+	resp := chooser.Run()
+	log.Info(resp)
+
+	return chooser.GetFilename()
+}
+
 func chooseFileCreateDevice(win *gtk.Window) device.Device {
 	chooser, err := gtk.FileChooserDialogNewWith1Button(
 		"Select video file", win, gtk.FILE_CHOOSER_ACTION_OPEN,
@@ -49,21 +69,20 @@ func chooseFileCreateDevice(win *gtk.Window) device.Device {
 }
 
 func main() {
-	mainCtx, mainCancel = context.WithCancel(context.Background())
-	defer mainCancel()
-
 	win, err := gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
 	if err != nil {
 		log.Fatal("Unable to create window")
 	}
-	win.SetTitle("LipoVision")
+	win.SetTitle("Lipovision")
 	win.Connect("destroy", func() {
-		mainCancel()
+		if mainCancel != nil {
+			mainCancel()
+		}
 		gtk.MainQuit()
 	})
 	win.SetDefaultSize(850, 550)
 
-	content, err := gui.NewMainControl()
+	content, err := gui.NewMainWindow()
 	if err != nil {
 		panic(err)
 	}
@@ -127,7 +146,10 @@ func registerEventHandling(content *gui.MainControl, win *gtk.Window) {
 
 func registerDeviceChange(content *gui.MainControl, win *gtk.Window) {
 	content.StreamControl.ComboBox.Connect("changed", func(combo *gtk.ComboBoxText) {
-		mainCancel()
+		if mainCancel != nil {
+			mainCancel()
+		}
+
 		mainCtx, mainCancel = context.WithCancel(context.Background())
 		selection := combo.GetActiveText()
 		switch selection {

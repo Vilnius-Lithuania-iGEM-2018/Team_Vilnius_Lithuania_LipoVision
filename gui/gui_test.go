@@ -7,7 +7,7 @@ import (
 )
 
 func TestGUILoads(t *testing.T) {
-	_, err := gui.NewMainControl()
+	_, err := gui.NewMainWindow()
 	if err != nil {
 		t.Error("Something failed while assembling components: ", err)
 	}

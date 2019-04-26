@@ -36,7 +36,7 @@ const (
 
 // NewFrameProcessor Creates a frame processor with given settings
 func NewFrameProcessor() *FrameProcessor {
-	log.WithFields(log.Fields{
+	defer log.WithFields(log.Fields{
 		"processor": "Frame",
 	}).Info("Created")
 

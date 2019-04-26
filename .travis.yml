@@ -18,7 +18,7 @@ cache:
 
 env:
   global:
-    - PACKAGE_VERSION=0.1.$TRAVIS_BUILD_NUMBER$TRAVIS_TAG # Special builds will have a tag
+    - PACKAGE_VERSION=$TRAVIS_TAG # Special builds will have a tag
     - OPENCV_VERSION=3.4.2
 
 addons:
@@ -52,9 +52,9 @@ install:
   - go install github.com/golang/mock/mockgen
   - dep ensure
   - .travis/compile_opencv.sh
-  - export PKG_CONFIG_PATH=$(pkg-config --variable pc_path pkg-config):$HOME/usr/lib/pkgconfig
+  - export PKG_CONFIG_PATH=$(pkg-config --variable pc_path pkg-config):$HOME/usr/lib/pkgconfig:$HOME/usr/lib64/pkgconfig
   - export INCLUDE_PATH=$HOME/usr/include:${INCLUDE_PATH}
-  - export LD_LIBRARY_PATH=$HOME/usr/lib:${LD_LIBRARY_PATH}
+  - export LD_LIBRARY_PATH=$HOME/usr/lib:$HOME/usr/lib64:${LD_LIBRARY_PATH}
   - mkdir build
   - .travis/build_project.sh ~/usr/lib/ .dylib
 before_script:
