@@ -2,14 +2,6 @@
 
 
 [[projects]]
-  digest = "1:bc38c7c481812e178d85160472e231c5e1c9a7f5845d67e23ee4e706933c10d8"
-  name = "github.com/golang/mock"
-  packages = ["gomock"]
-  pruneopts = "UT"
-  revision = "c34cdb4725f4c3844d095133c6e40e448b86589b"
-  version = "v1.1.1"
-
-[[projects]]
   branch = "master"
   digest = "1:47bb12a3430e260e91b3fa6e97ec869b0db83a862a3ed251d6244126ffd9b1a7"
   name = "github.com/gotk3/gotk3"
@@ -57,14 +49,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:76ee51c3f468493aff39dbacc401e8831fbb765104cbf613b89bef01cf4bad70"
-  name = "golang.org/x/net"
-  packages = ["context"]
-  pruneopts = "UT"
-  revision = "146acd28ed5894421fb5aac80ca93bc1b1f46f87"
-
-[[projects]]
-  branch = "master"
   digest = "1:850d28ab022512e2cd3cf511a77f363c29e22689b4031f2050871f5de47ae4a0"
   name = "golang.org/x/sys"
   packages = [
@@ -78,7 +62,6 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/golang/mock/gomock",
     "github.com/gotk3/gotk3/gdk",
     "github.com/gotk3/gotk3/gtk",
     "github.com/sirupsen/logrus",
