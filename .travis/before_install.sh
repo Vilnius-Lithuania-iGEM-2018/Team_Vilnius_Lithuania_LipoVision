@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then 
-  brew install s3cmd && brew link s3cmd
+  # brew install s3cmd && brew link s3cmd_
   brew install gtk+ && brew link gtk+
   brew install gtk+3 && brew link gtk+3
-  brew uninstall tesseract
 else
   sudo apt-get update
   sudo apt-get install -y - libgmp-dev build-essential cmake git gtk2.0 gtk+3.0 libgtk2.0-dev libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev python-setuptools
